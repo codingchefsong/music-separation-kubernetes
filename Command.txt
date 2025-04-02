@@ -1,0 +1,48 @@
+#!/bin/sh
+
+helm3 repo add bitnami https://charts.bitnami.com/bitnami
+helm3 install -f ./minio-config.yaml -n minio-ns --create-namespace minio-proj bitnami/minio
+sleep 10
+kubectl port-forward --namespace minio-ns svc/minio-proj 9000:9000 &
+kubectl port-forward --namespace minio-ns svc/minio-proj 9001:9001 &
+
+
+kubectl port-forward svc/redis 6379:6379 &
+
+
+kubectl delete deployment rest-server-deployment
+kubectl apply -f rest-deployment.yaml
+kubectl apply -f rest-service.yaml
+kubectl port-forward --address 0.0.0.0 service/rest-server-service 5000:5000 &
+
+
+kubectl delete deployment worker
+kubectl apply -f worker-deployment.yaml
+
+
+kubectl get pods --namespace <namespace-name>
+kubectl logs <pod>
+
+
+kubectl get pods --all-namespaces
+kubectl describe pod <pod name>
+kubectl delete all --all --all-namespaces
+
+kubectl get services --all-namespaces
+
+
+
+ps aux | grep "kube"
+
+kubectl exec -it <pod> -- /bin/sh
+
+
+helm list -n minio-ns
+helm uninstall minio-proj -n minio-ns
+
+
+kubectl exec -it postgres-deployment-67fb68fc4b-phcd8 -- psql -U postgres -d yourdatabase
+
+\dt
+
+drop table transactions;
